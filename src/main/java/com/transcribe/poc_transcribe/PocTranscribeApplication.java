@@ -28,11 +28,11 @@ public class PocTranscribeApplication {
     private static final String RESET = "\u001B[0m";
 
     private final OpenAiAudioTranscriptionModel transcriptionModel;
-    private final MeterRegistry meterRegistry; // Add Micrometer registry
+    private final MeterRegistry meterRegistry;
 
     public PocTranscribeApplication(OpenAiAudioTranscriptionModel transcriptionModel, MeterRegistry meterRegistry) {
         this.transcriptionModel = transcriptionModel;
-        this.meterRegistry = meterRegistry; // Inject MeterRegistry
+        this.meterRegistry = meterRegistry;
     }
 
     public static void main(String[] args) {
