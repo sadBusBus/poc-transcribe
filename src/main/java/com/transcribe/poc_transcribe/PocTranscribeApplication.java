@@ -1,5 +1,7 @@
 package com.transcribe.poc_transcribe;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.ai.audio.transcription.AudioTranscriptionPrompt;
 import org.springframework.ai.audio.transcription.AudioTranscriptionResponse;
 import org.springframework.ai.openai.OpenAiAudioTranscriptionOptions;
@@ -19,24 +21,34 @@ import org.springframework.beans.factory.annotation.Autowired;
 @RestController
 public class PocTranscribeApplication {
 
-	@Autowired
-	private OpenAiAudioTranscriptionModel transcriptionModel;
+	private static final Logger logger = LoggerFactory.getLogger(PocTranscribeApplication.class);
 
-	public static void main(String[] args) {
+	// ANSI color codes
+	private static final String YELLOW = "\u001B[33m";
+	private static final String RED = "\u001B[31m";
+	private static final String RESET = "\u001B[0m";
+
+	@Autowired
+	private final OpenAiAudioTranscriptionModel transcriptionModel;
+
+    public PocTranscribeApplication(OpenAiAudioTranscriptionModel transcriptionModel) {
+        this.transcriptionModel = transcriptionModel;
+    }
+
+    public static void main(String[] args) {
 		SpringApplication.run(PocTranscribeApplication.class, args);
 	}
 
 	@PostMapping("/transcribe")
 	public String transcribe(@RequestParam("file") MultipartFile audioFile) throws IOException {
-		// Transcribe with Whisper
 		TranscriptionResult whisperResult = transcribeAudio(audioFile, "whisper-1");
-		System.out.println("Whisper Transcription Time: " + whisperResult.getDuration() + "ms");
-		System.out.println("Whisper Transcription: " + whisperResult.getTranscription());
+		logger.info(YELLOW + "Whisper Transcription Time: {}ms" + RESET, whisperResult.getDuration());
+		logger.info(YELLOW + "Whisper Transcription: {}" + RESET, whisperResult.getTranscription());
 
 		// Transcribe with GPT-4o-Transcribe
 		TranscriptionResult gpt4oResult = transcribeAudio(audioFile, "gpt-4o-transcribe");
-		System.out.println("GPT-4o-Transcribe Time: " + gpt4oResult.getDuration() + "ms");
-		System.out.println("GPT-4o-Transcribe Transcription: " + gpt4oResult.getTranscription());
+		logger.info(RED + "GPT-4o-Transcribe Time: {}ms" + RESET, gpt4oResult.getDuration());
+		logger.info(RED + "GPT-4o-Transcribe Transcription: {}" + RESET, gpt4oResult.getTranscription());
 
 		return "Transcription completed. Check console for results.";
 	}
